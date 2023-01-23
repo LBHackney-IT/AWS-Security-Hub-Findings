@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+boto3 = "*"
+gspread = "*"
+python-dotenv = "*"
+oauth2client = "*"
+
+[dev-packages]
+pytest = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.11"
