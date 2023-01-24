@@ -8,6 +8,8 @@ boto3 = "*"
 gspread = "*"
 python-dotenv = "*"
 oauth2client = "*"
+pandas = "*"
+openpyxl = "*"
 
 [dev-packages]
 pytest = "*"
