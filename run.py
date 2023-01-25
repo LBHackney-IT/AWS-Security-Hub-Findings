@@ -37,10 +37,6 @@ def main():
 
     logger.info("Saving Security Hub Findings Search") 
     
-    # for finiding in Security_Hub_list:
-    #     sheet.append_row(finiding,value_input_option='RAW') 
-    #     time.sleep(1)
-    
     sheet.update("A2",Security_Hub_list)
 
     logger.info("Security Hub Findings Search Complete")
