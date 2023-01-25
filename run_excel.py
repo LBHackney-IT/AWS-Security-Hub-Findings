@@ -10,14 +10,14 @@ level = logging.getLevelName(os.getenv('LOG_LEVEL', 'INFO'))
 logger.setLevel(level)
 
 def main():
-    logger.info("Starting Security Hub Search")
+    logger.info("Starting Security Hub Findings Search")
     Security_Hub_list = get_list_securityhub()
     
-    logger.info("Saving Security Hub Search") 
+    logger.info("Saving Security Hub Findings") 
     df_json = pd.read_json(json.dumps(Security_Hub_list))
     df_json.to_excel("Security Hub Findings.xlsx",index=False)
     
-    logger.info("Security Hub Search Complete")
+    logger.info("Security Hub Findings Search Complete")
 
 def get_list_securityhub() -> list[str]:
     """Gets all security hub items.
@@ -37,11 +37,7 @@ def get_list_securityhub() -> list[str]:
                 {
                     'Value': 'RESOLVED',
                     'Comparison': 'NOT_EQUALS'
-                }#,
-                # {
-                #     'Value': 'SUPPRESSED',
-                #     'Comparison': 'EQUALS'
-                # }
+                }
             ]
             }
         }
@@ -49,31 +45,16 @@ def get_list_securityhub() -> list[str]:
     response = paginate_results(client_type='securityhub', operation='get_findings', operation_parameters=operation_filters, response_key='Findings')
     securityhub_ids = []
     for finding in response:
-        
-        Id = finding['Id']
-        GeneratorId = finding['GeneratorId']
-        AwsAccountId = finding['AwsAccountId']
-        Title = finding['Title']
-        Description = finding['Description']
-        Severity = finding['Severity']['Label']
-        try:
-            Remediation_Text = finding['Remediation']['Recommendation']['Text']
-        except:
-            Remediation_Text = ""
-        try:
-            Remediation_URL = finding['Remediation']['Recommendation']['Url']
-        except:
-            Remediation_URL = ""
-
+       
         securityhub_ids.append({
-            'Id': Id,
-            'GeneratorId': GeneratorId,
-            'AwsAccountId':AwsAccountId,
-            'Title': Title,
-            'Description': Description,
-            'Severity': Severity,
-            'Remediation_Text': Remediation_Text,
-            'Remediation_URL': Remediation_URL
+            'Id': finding['Id'],
+            'GeneratorId': finding['GeneratorId'],
+            'AwsAccountId': finding['AwsAccountId'],
+            'Title': finding['Title'],
+            'Description': finding['Description'],
+            'Severity': finding['Severity']['Label'],
+            'Remediation_Text': finding['Remediation']['Recommendation'].get('Text',""),
+            'Remediation_URL': finding['Remediation']['Recommendation'].get('Url',"")
             })
 
     return securityhub_ids
