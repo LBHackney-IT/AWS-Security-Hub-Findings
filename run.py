@@ -24,10 +24,10 @@ def main():
     # Clear the data in the sheet
     clear_sheet(sheet)
     # Get a list of the findings
-    Security_Hub_list = get_list_securityhub()
+    security_hub_list = get_list_securityhub()
     logger.info("Saving Security Hub Findings Search") 
     # Update the sheet with the findings
-    sheet.update("A2",Security_Hub_list)
+    sheet.update("A2",security_hub_list)
     logger.info("Security Hub Findings Search Complete")
 
 def google_client():
