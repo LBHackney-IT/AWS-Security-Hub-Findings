@@ -6,14 +6,9 @@ name = "pypi"
 [packages]
 boto3 = "*"
 gspread = "*"
-python-dotenv = "*"
 oauth2client = "*"
-pandas = "*"
-openpyxl = "*"
 
 [dev-packages]
-pytest = "*"
-flake8 = "*"
 
 [requires]
 python_version = "3.11"

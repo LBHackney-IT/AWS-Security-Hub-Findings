@@ -1,14 +1,9 @@
 import os
 import logging
 import boto3
-import json
-import time
 import gspread
-from gspread.cell import Cell
 from oauth2client.service_account import ServiceAccountCredentials
-from dotenv import load_dotenv
 
-load_dotenv()
 
 logger = logging.getLogger()
 logging.basicConfig()
@@ -17,31 +12,44 @@ logger.setLevel(level)
 
 
 def main():
+    """This is the main function that gets the sheet id and updates the sheet with the findings
+    """
     logger.info("Starting Security Hub Findings Search")
     # Set the google sheets document ID
-    google_sheet_id = os.getenv('GOOGLE_SHEET_ID')#secretVals["GOOGLE_SHEET_ID"] 
+    google_sheet_id = os.getenv('GOOGLE_SHEET_ID')     
+    # Get the Google client 
+    client = google_client()
+    # Accessing the Main sheet
+    sheet = client.open_by_key(google_sheet_id).worksheet("Data")
+    # Clear the data in the sheet
+    clear_sheet(sheet)
+    # Get a list of the findings
+    Security_Hub_list = get_list_securityhub()
+    logger.info("Saving Security Hub Findings Search") 
+    # Update the sheet with the findings
+    sheet.update("A2",Security_Hub_list)
+    logger.info("Security Hub Findings Search Complete")
 
+def google_client():
+    """Defines the scope and look for valid credentials
+
+    Returns:
+        class: With assigned credentials
+    """
     # Setting up the scope to access and edit google sheets
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
              "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
     
-    # Assign credentials ann ID of Google Sheet
+    # Assign credentials 
     creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
     client = gspread.authorize(creds)
-    
-    # Accessing the Main sheet
-    sheet = client.open_by_key(google_sheet_id).worksheet("Data")
-    
-    clear_sheet(sheet)
-    Security_Hub_list = get_list_securityhub()
-
-    logger.info("Saving Security Hub Findings Search") 
-    
-    sheet.update("A2",Security_Hub_list)
-
-    logger.info("Security Hub Findings Search Complete")
+    return client
 
 def clear_sheet(sheet):
+    """This is to clear the data in the Google sheet and the add the header row
+    Args:
+        sheet (class): This is the worksheet with specified worksheet id
+    """
     sheet.clear()
     header = ["Id","GeneratorId","AwsAccountId","Title","Description","Severity","Remediation_Text","Remediation_URL"]
     index = 1
