@@ -17,7 +17,7 @@ logger.setLevel(level)
 
 
 def main():
-    logger.info("Starting Security Hub Search")
+    logger.info("Starting Security Hub Findings Search")
     # Set the google sheets document ID
     google_sheet_id = os.getenv('GOOGLE_SHEET_ID')#secretVals["GOOGLE_SHEET_ID"] 
 
@@ -35,13 +35,15 @@ def main():
     clear_sheet(sheet)
     Security_Hub_list = get_list_securityhub()
 
-    logger.info("Saving Security Hub Search") 
+    logger.info("Saving Security Hub Findings Search") 
     
-    for finiding in Security_Hub_list:
-        sheet.append_row(finiding,value_input_option='RAW') 
-        time.sleep(1)
+    # for finiding in Security_Hub_list:
+    #     sheet.append_row(finiding,value_input_option='RAW') 
+    #     time.sleep(1)
+    
+    sheet.update("A2",Security_Hub_list)
 
-    logger.info("Security Hub Search Complete")
+    logger.info("Security Hub Findings Search Complete")
 
 def clear_sheet(sheet):
     sheet.clear()
@@ -67,11 +69,7 @@ def get_list_securityhub() -> list[str]:
                 {
                     'Value': 'RESOLVED',
                     'Comparison': 'NOT_EQUALS'
-                }#,
-                # {
-                #     'Value': 'SUPPRESSED',
-                #     'Comparison': 'EQUALS'
-                # }
+                }
             ]
             }
         }
@@ -79,32 +77,19 @@ def get_list_securityhub() -> list[str]:
     response = paginate_results(client_type='securityhub', operation='get_findings', operation_parameters=operation_filters, response_key='Findings')
     securityhub_ids = []
     for finding in response:
-        finding_list = []
-        Id = finding['Id']
-        GeneratorId = finding['GeneratorId']
-        AwsAccountId = finding['AwsAccountId']
-        Title = finding['Title']
-        Description = finding['Description']
-        Severity = finding['Severity']['Label']
-        try:
-            Remediation_Text = finding['Remediation']['Recommendation']['Text']
-        except:
-            Remediation_Text = ""
-        try:
-            Remediation_URL = finding['Remediation']['Recommendation']['Url']
-        except:
-            Remediation_URL = ""
 
-        finding_list.append(Id)
-        finding_list.append(GeneratorId)
-        finding_list.append(AwsAccountId)
-        finding_list.append(Title)
-        finding_list.append(Description)
-        finding_list.append(Severity)
-        finding_list.append(Remediation_Text)
-        finding_list.append(Remediation_URL)
+        finding_list = []
+        finding_list.append(finding['Id'])
+        finding_list.append(finding['GeneratorId'])
+        finding_list.append(finding['AwsAccountId'])
+        finding_list.append(finding['Title'])
+        finding_list.append(finding['Description'])
+        finding_list.append(finding['Severity']['Label'])
+        finding_list.append(finding['Remediation']['Recommendation'].get('Text',""))
+        finding_list.append(finding['Remediation']['Recommendation'].get('Url',""))
 
         securityhub_ids.append(finding_list)
+
     return securityhub_ids
 
 def paginate_results(client_type: str, operation: str, response_key: str, operation_parameters: dict = {}) -> list[dict]:
